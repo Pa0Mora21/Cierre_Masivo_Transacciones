@@ -1,0 +1,69 @@
+<customrecordtype scriptid="customrecord_gv_cierre_log">
+  <accesstype>USE_PERMISSION_LIST</accesstype>
+  <allowattachments>F</allowattachments>
+  <allowinlinedeleting>F</allowinlinedeleting>
+  <allowinlinedetaching>F</allowinlinedetaching>
+  <allowinlineediting>F</allowinlineediting>
+  <allowquicksearch>T</allowquicksearch>
+  <customrecordcustomfields>
+    <customrecordcustomfield scriptid="custrecord_gv_cl_ejecucion">
+      <accesslevel>2</accesslevel>
+      <allowmatchingresponses>F</allowmatchingresponses>
+      <fieldtype>TEXT</fieldtype>
+      <label>Ejecución</label>
+    </customrecordcustomfield>
+    <customrecordcustomfield scriptid="custrecord_gv_cl_tipo">
+      <accesslevel>2</accesslevel>
+      <allowmatchingresponses>F</allowmatchingresponses>
+      <fieldtype>TEXT</fieldtype>
+      <label>Tipo Documento</label>
+    </customrecordcustomfield>
+    <customrecordcustomfield scriptid="custrecord_gv_cl_numero">
+      <accesslevel>2</accesslevel>
+      <allowmatchingresponses>F</allowmatchingresponses>
+      <fieldtype>TEXT</fieldtype>
+      <label>Número Documento</label>
+    </customrecordcustomfield>
+    <customrecordcustomfield scriptid="custrecord_gv_cl_trans_id">
+      <accesslevel>2</accesslevel>
+      <allowmatchingresponses>F</allowmatchingresponses>
+      <fieldtype>TEXT</fieldtype>
+      <label>ID Transacción</label>
+    </customrecordcustomfield>
+    <customrecordcustomfield scriptid="custrecord_gv_cl_resultado">
+      <accesslevel>2</accesslevel>
+      <allowmatchingresponses>F</allowmatchingresponses>
+      <fieldtype>TEXT</fieldtype>
+      <label>Resultado</label>
+    </customrecordcustomfield>
+    <customrecordcustomfield scriptid="custrecord_gv_cl_motivo">
+      <accesslevel>2</accesslevel>
+      <allowmatchingresponses>F</allowmatchingresponses>
+      <fieldtype>CLOBTEXT</fieldtype>
+      <label>Motivo / Detalle</label>
+    </customrecordcustomfield>
+    <customrecordcustomfield scriptid="custrecord_gv_cl_pendiente">
+      <accesslevel>2</accesslevel>
+      <allowmatchingresponses>F</allowmatchingresponses>
+      <fieldtype>TEXT</fieldtype>
+      <label>Cantidad Pendiente</label>
+    </customrecordcustomfield>
+    <customrecordcustomfield scriptid="custrecord_gv_cl_usuario">
+      <accesslevel>2</accesslevel>
+      <allowmatchingresponses>F</allowmatchingresponses>
+      <fieldtype>TEXT</fieldtype>
+      <label>Usuario</label>
+    </customrecordcustomfield>
+    <customrecordcustomfield scriptid="custrecord_gv_cl_modalidad">
+      <accesslevel>2</accesslevel>
+      <allowmatchingresponses>F</allowmatchingresponses>
+      <fieldtype>TEXT</fieldtype>
+      <label>Modalidad</label>
+    </customrecordcustomfield>
+  </customrecordcustomfields>
+  <recordname>GV Bitácora Cierre Transacciones</recordname>
+  <showcreationdate>T</showcreationdate>
+  <showlastmodified>T</showlastmodified>
+  <shownotes>F</shownotes>
+  <showowner>T</showowner>
+</customrecordtype>

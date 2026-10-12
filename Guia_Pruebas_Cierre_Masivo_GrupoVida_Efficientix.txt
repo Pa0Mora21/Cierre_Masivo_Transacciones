@@ -1,0 +1,417 @@
+﻿Guía de Pruebas — Cierre masivo  ·  Grupo Vida
+Versión v1.0 · Octubre 2026
+
+
+
+
+
+
+
+
+GUÍA DE PRUEBAS · UAT
+Guía de Pruebas
+Cierre masivo y controlado de transacciones abiertas
+Proyecto
+	Cierre masivo y controlado de transacciones abiertas
+	Folio
+	UAT-GVI-CIE-001
+	Cliente
+	Grupo Vida Internacional
+	Versión
+	v1.0
+	Plataforma / Módulo
+	Oracle NetSuite · Manufactura, Ventas, Compras, Inventario · SuiteScript 2.1
+	Fecha
+	Octubre 2026
+	Preparado por
+	Efficientix — Solution Provider Partner
+	Estado
+	Liberado para pruebas (Sandbox)
+	Elaboró
+	Equipo Efficientix
+	Confidencial
+	No distribuir sin autorización
+	CONFIDENCIAL — Uso exclusivo de Grupo Vida Internacional y Efficientix.
+________________
+
+
+Control del Documento
+Historial de versiones
+Versión
+	Fecha
+	Autor
+	Descripción del cambio
+	v1.0
+	Octubre 2026
+	Efficientix
+	Versión inicial para pruebas de los consultores en el Sandbox.
+	Distribución
+Consultores de Efficientix asignados al proyecto Grupo Vida y líder del proyecto del cliente.
+1 · Objetivo y alcance de las pruebas
+Esta guía permite a los consultores de Efficientix probar, en el Sandbox de Grupo Vida Internacional, el desarrollo de cierre masivo y controlado de transacciones abiertas. Un dashboard permite encontrar órdenes de trabajo, de venta, de compra y de traslado que ya no se van a ejecutar, revisar por qué son o no elegibles y cerrarlas en bloque. Cada cierre queda registrado en una bitácora. La modalidad es híbrida: dashboard manual y un proceso nocturno que se entrega desplegado pero apagado.
+
+
+▲ A DISCUTIR CON EL CLIENTE — Definiciones que deben validarse antes de producción
+Tolerancia. Se implementó como "% máximo no ejecutado": un documento solo es elegible si su porcentaje sin ejecutar es menor o igual al valor indicado (100 = sin límite). Confirmar que esta es la definición que el cliente necesita.
+Compras. Se entregan sin exclusiones: toda orden de compra aprobada con cantidad pendiente es candidata. Definir si hay proveedores, tipos de compra o contratos que deban excluirse. Las compras rechazadas o pendientes de aprobación no son candidatas.
+Traslados. Un traslado con mercancía enviada y no recibida (en tránsito) no se cierra. Confirmar el criterio.
+Proceso nocturno. Su configuración (solo órdenes de trabajo, antigüedad de 90 días, tolerancia de 5%) es provisional y debe definirse con el cliente. El despliegue está apagado.
+Acción para el consultor: revisar estos puntos con Grupo Vida antes de pasar a producción.
+	
+
+Qué cubre y qué no cubre
+Incluido
+	Fuera de alcance
+	Dashboard con filtros por tipo, fechas, ubicación/planta, tolerancia y máximo de documentos.
+	Reabrir documentos cerrados desde el dashboard.
+	Evaluación por documento: ordenado, no ejecutado, porcentaje, elegibilidad y motivo.
+	Cierre de documentos con mercancía en tránsito (traslados).
+	Cierre de órdenes de trabajo, de venta, de compra y de traslado con el mecanismo nativo de NetSuite.
+	Exclusiones de compras (pendientes de definir con el cliente).
+	Cierre asíncrono mediante Map/Reduce y bitácora por ejecución.
+	Revisión de más de 60 documentos en una sola consulta.
+	Despliegue nocturno apagado, con configuración provisional.
+	Programación del proceso nocturno en producción.
+	2 · Ambiente y componentes desplegados
+Todos los componentes están en el Sandbox de Grupo Vida Internacional (cuenta 11289219_SB2), desarrollados en SuiteScript 2.1.
+Componente
+	Identificador
+	Detalle
+	Dashboard (Suitelet)
+	customscript_gv_sl_cierre_masivo (5767) / customdeploy_gv_sl_cierre_masivo (9558)
+	Estado Liberado, log en Error, rol Administrador.
+	Motor de cierre (Map/Reduce)
+	customscript_gv_mr_cierre_masivo (5770)
+	Entradas: obtener datos, mapa y resumen.
+	Despliegue manual
+	customdeploy_gv_mr_cierre_manual (9563)
+	Lo invoca el dashboard. Log en Error.
+	Despliegue nocturno
+	customdeploy_gv_mr_cierre_nocturno (9564)
+	Apagado: sin programación y con "Desplegados" desmarcado.
+	Bitácora
+	customrecord_gv_cierre_log
+	Campos: ejecución, tipo, número, id de transacción, resultado, motivo, cantidad pendiente, usuario y modalidad.
+	Archivos en File Cabinet
+	SuiteScripts
+	GV_LIB_Cierre.js, GV_SL_CierreMasivo.js y GV_MR_CierreMasivo.js.
+	Acceso: /app/site/hosting/scriptlet.nl?script=customscript_gv_sl_cierre_masivo&deploy=customdeploy_gv_sl_cierre_masivo
+ Despliegue del Suitelet de cierre masivo 
+
+Captura 1 — Despliegue del dashboard: Liberado, log en Error y rol Administrador.
+3 · Reglas de elegibilidad y cierre
+El dashboard evalúa cada documento y el motor lo vuelve a evaluar al cerrar. Si el documento ya no está abierto en ese momento, se omite y queda registrado el motivo.
+Tipo
+	Estados considerados
+	Cantidad no ejecutada
+	Cierre y casos no elegibles
+	Orden de trabajo
+	Liberada y En curso.
+	Ordenado menos lo producido (suma de los Work Order Completion).
+	Cierra con el Work Order Close nativo por la cantidad pendiente. No elegible si no hay cantidad pendiente.
+	Orden de venta
+	Pendiente de aprobación, de cumplimiento, parcialmente cumplida y pendiente de facturación.
+	Suma de cantidad menos cantidad cumplida en líneas abiertas.
+	Cierra todas las líneas. No elegible si no hay pendiente.
+	Orden de compra
+	Pendiente de recepción, parcialmente recibida y pendiente de facturación (ya aprobadas).
+	Suma de cantidad menos cantidad recibida en líneas abiertas.
+	Cierra todas las líneas. No elegible si no hay pendiente.
+	Orden de traslado
+	Pendiente de cumplimiento, parcialmente cumplida y pendiente de recepción.
+	Suma de cantidad menos cantidad enviada en líneas abiertas.
+	Cierra todas las líneas. No elegible si hay mercancía en tránsito.
+	4 · Datos de prueba y precauciones
+▲ PRECAUCIÓN — No cierre documentos que no sean de prueba
+El Sandbox contiene documentos reales del cliente. Antes de pulsar "Cerrar los seleccionados", desmarque todo lo que no sea su documento de prueba. El dashboard marca por defecto todos los elegibles.
+Cerrar una orden de trabajo genera un Work Order Close. Revertirlo, o reabrir líneas cerradas, no se hace desde el dashboard y requiere intervención manual en cada documento.
+	
+
+Registro
+	Estado
+	Uso en las pruebas
+	WO116 (id 24114)
+	Cerrada en la prueba de Efficientix.
+	Ejemplo de orden de trabajo cerrada; copia de WO113 con la nota "GV-TEST cierre masivo".
+	SO156 (id 24115)
+	Cerrada en la prueba.
+	Ejemplo de orden de venta cerrada.
+	TO31 (id 24113)
+	Cerrada en la prueba.
+	Ejemplo de orden de traslado cerrada.
+	PO214 (id 23730)
+	Cerrada en la prueba.
+	Orden de compra aprobada, existente en el Sandbox, usada con autorización para probar el cierre de compras.
+	PO216 (id 24111)
+	Rechazada por precios por el flujo del cliente.
+	No es candidata: las compras rechazadas no se cierran con este desarrollo.
+	WO85 y WO97
+	Abiertas, sin cantidad pendiente.
+	Solo consulta: salen "No elegible".
+	WO96
+	Abierta, 83% sin ejecutar.
+	Solo consulta: sirve para la prueba de tolerancia. No la cierre.
+	Para repetir los cierres, cree documentos nuevos de prueba (por ejemplo copiando una orden de trabajo existente y marcándola con la nota "GV-TEST") y trabaje solo sobre ellos.
+ Dashboard con candidatos y motivos 
+
+Captura 2 — Dashboard: candidatos con cantidad no ejecutada, porcentaje, resultado de la evaluación y motivo.
+5 · Casos de prueba
+Ejecute los casos en orden. Registre el resultado de cada uno en la sección 8.
+CP-01 · Acceso al dashboard
+Pasos
+	Resultado esperado
+	1. Inicie sesión con el rol Administrador.
+2. Abra la dirección de acceso de la sección 2.
+	Se muestra "GV - Cierre masivo de transacciones abiertas" con los filtros y el botón Ejecutar.
+Con un rol no autorizado el dashboard no está disponible.
+	CP-02 · Consulta de candidatos y motivos
+Pasos
+	Resultado esperado
+	1. Deje la acción en "Consultar candidatos", elija "Orden de trabajo" y un máximo de 10.
+2. Pulse Ejecutar y revise la tabla.
+	Se listan los documentos con Ordenado, No ejecutado, % no ejecutado y Resultado de la evaluación.
+WO85 y WO97 salen "No elegible: sin cantidad pendiente por producir"; WO96 sale con 83%.
+Los elegibles vienen marcados por defecto.
+	CP-03 · Tolerancia
+Pasos
+	Resultado esperado
+	1. Repita CP-02 con una tolerancia de 50.
+2. Revise la columna Motivo.
+	Los documentos con más de 50% sin ejecutar pasan a "No elegible" con el motivo "Supera la tolerancia (X% > 50%)".
+	CP-04 · Cierre de orden de trabajo, de venta y de traslado
+Pasos
+	Resultado esperado
+	1. Cree documentos de prueba de cada tipo (sección 4).
+2. Consulte desde la fecha de hoy y desmarque todo lo que no sea de prueba.
+3. Cambie la Acción a "Cerrar los seleccionados" y pulse Ejecutar.
+4. Abra Resultados con el enlace del mensaje.
+	El mensaje indica cuántos documentos se enviaron a cierre y el número de ejecución (EJE-AAAAMMDDHHMMSS).
+En la bitácora cada documento pasa de Pendiente a Cerrada.
+Cada documento aparece con estado "Cerrada" en NetSuite.
+	 Bitácora de la ejecución EJE-20261007053201 
+
+Captura 3 — Bitácora de una ejecución: tres documentos cerrados.
+ Orden de trabajo WO116 cerrada 
+
+Captura 4 — Orden de trabajo WO116 en estado Cerrada tras el cierre masivo.
+CP-05 · Cierre de orden de compra
+Pasos
+	Resultado esperado
+	1. Elija solo "Orden de compra" y consulte.
+2. Marque únicamente la compra aprobada de prueba y ejecute el cierre.
+	La compra pasa a "Cerrada" en la bitácora y en NetSuite.
+Una compra rechazada o pendiente de aprobación no aparece como candidata.
+	CP-06 · Documento que ya no está abierto
+Pasos
+	Resultado esperado
+	1. Seleccione un documento de prueba en el dashboard.
+2. Antes de ejecutar, ciérrelo manualmente en otra pestaña.
+3. Ejecute el cierre masivo.
+	El resultado queda como "Omitida" con el motivo "Ya no esta abierta".
+El resto de los documentos de la ejecución se procesan con normalidad.
+	CP-07 · Traslado con mercancía en tránsito
+Pasos
+	Resultado esperado
+	1. Prepare un traslado de prueba enviado pero no recibido.
+2. Consúltelo en el dashboard.
+	Sale "No elegible" con el motivo "Mercancia en transito (enviada y no recibida)".
+	CP-08 · Error controlado
+Pasos
+	Resultado esperado
+	1. Seleccione un documento de prueba que NetSuite no permita cerrar.
+2. Ejecute el cierre.
+	El resultado queda como "Error" con el texto del error en Motivo.
+Los demás documentos de la ejecución no se ven afectados.
+	CP-09 · Proceso nocturno
+Pasos
+	Resultado esperado
+	1. Verifique que el despliegue nocturno esté apagado (sin programación y con "Desplegados" desmarcado).
+2. Con la configuración provisional definida con el cliente, active y programe el despliegue en el Sandbox.
+3. Revise la bitácora al día siguiente.
+	Las filas nuevas llevan la modalidad "Programada".
+Solo se cierran documentos que cumplan antigüedad y tolerancia configuradas.
+	CP-10 · Bitácora
+Pasos
+	Resultado esperado
+	1. Abra la vista Resultados sin indicar ejecución (últimos 200) y con una ejecución específica.
+	Se muestran ejecución, modalidad, tipo, número, resultado, motivo, cantidad no ejecutada y usuario.
+	6 · Estado de validación
+Antes de entregar esta guía, Efficientix ejecutó lo siguiente en el Sandbox. Lo marcado como pendiente debe probarlo el consultor.
+Caso
+	Estado
+	Evidencia o comentario
+	CP-01
+	Parcial
+	Probado con Administrador y confirmado por los consultores. La prueba con el rol CEO aún no tiene resultado documentado.
+	CP-02
+	Validado
+	Consulta de órdenes de trabajo, venta, compra y traslado sin errores. Confirmado también por los consultores.
+	CP-03
+	Validado
+	Confirmado por el equipo de consultores con tolerancia de 50%.
+	CP-04
+	Validado
+	WO116, SO156 y TO31 cerradas; confirmado en NetSuite. Confirmado también por los consultores.
+	CP-05
+	Validado
+	PO214 cerrada; confirmado en NetSuite. Confirmado también por los consultores.
+	CP-06
+	Pendiente
+	No se ejecutó.
+	CP-07
+	Pendiente
+	No se ejecutó.
+	CP-08
+	Pendiente
+	No se forzó ningún error.
+	CP-09
+	Pendiente
+	El despliegue nocturno nunca se ejecutó.
+	CP-10
+	Validado
+	Vista Resultados con una ejecución específica.
+	7 · Estados de la bitácora
+Resultado
+	Significado
+	Acción
+	Pendiente
+	El documento está en cola; el motor aún no lo procesa.
+	Esperar y recargar Resultados.
+	Cerrada
+	El documento se cerró con el mecanismo nativo.
+	Ninguna.
+	Omitida
+	No se cerró: ya no estaba abierto o no tenía cantidad pendiente.
+	Revisar el motivo.
+	Error
+	El cierre falló; el motivo trae el texto del error.
+	Revisar el documento y el log del despliegue.
+	8 · Consideraciones y diagnóstico
+* Cada consulta evalúa como máximo 60 documentos, por el límite de gobernanza de un Suitelet.
+* Los cierres se procesan de forma asíncrona; puede tardar unos segundos en reflejarse en la bitácora.
+* Para diagnosticar, abra el despliegue "GV MR Cierre Manual" y consulte su Página de estado y el log de ejecución. El nivel de registro está en Error.
+* Un documento que otro usuario cierre mientras tanto se omite sin afectar al resto.
+* Todo se probó en el Sandbox; la promoción a producción requiere validación del cliente.
+9 · Registro de resultados
+Caso
+	Fecha
+	Consultor
+	Resultado (OK / NOK)
+	Observaciones
+	CP-01
+	
+
+	
+
+	
+
+	
+
+	CP-02
+	
+
+	
+
+	
+
+	
+
+	CP-03
+	
+
+	
+
+	
+
+	
+
+	CP-04
+	
+
+	
+
+	
+
+	
+
+	CP-05
+	
+
+	
+
+	
+
+	
+
+	CP-06
+	
+
+	
+
+	
+
+	
+
+	CP-07
+	
+
+	
+
+	
+
+	
+
+	CP-08
+	
+
+	
+
+	
+
+	
+
+	CP-09
+	
+
+	
+
+	
+
+	
+
+	CP-10
+	
+
+	
+
+	
+
+	
+
+	10 · Firma de Aceptación
+Por Grupo Vida Internacional
+	Por Efficientix
+	
+
+_____________________________
+Firma
+
+
+Nombre:
+Cargo:
+Fecha:
+	
+
+_____________________________
+Firma
+
+
+Nombre:
+Cargo:
+Fecha:
+	La firma de esta guía confirma que las pruebas descritas se ejecutaron en el Sandbox y que sus resultados quedaron registrados en la sección 9.
+
+
+
+
+© 2026 Efficientix  |  Confidencial        Página  de

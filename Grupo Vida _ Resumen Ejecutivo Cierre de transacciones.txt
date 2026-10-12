@@ -1,0 +1,62 @@
+﻿Cierre masivo y controlado de transacciones abiertas en NetSuite
+Contexto y problema de negocio
+En la operación de Grupo Vida pueden existir distintos documentos abiertos en NetSuite aun cuando el remanente ya no continuará en la realidad del negocio. Esto ocurre en órdenes de trabajo con saldo no fabricado, en órdenes de venta con cantidades pendientes que ya no se surtirán, en órdenes de traslado con líneas que ya no serán enviadas o recibidas y en órdenes de compra que ya no continuarán bajo las condiciones originalmente planeadas.
+El efecto común es que el sistema conserva pendientes que ya no representan trabajo real por ejecutar. Esto obliga a revisiones manuales, ensucia reportes operativos y mantiene compromisos documentales, de inventario o de materiales que dejan de tener sentido una vez que la operación ya tomó una decisión diferente.
+Limitaciones de NetSuite de caja
+NetSuite permite cerrar o concluir documentos mediante sus mecanismos estándar, y ese es el comportamiento correcto. La limitante es que lo hace transacción por transacción y sin un motor centralizado que aplique reglas diferentes según el tipo documental.
+* No existe una sola pantalla que concentre candidatos de cierre y explique por qué cada documento sí o no puede procesarse.
+* El cierre masivo o programado no está resuelto de forma uniforme para las órdenes de trabajo, venta, traslado y compra.
+* Sin un marco único de tolerancias para cierre, el criterio queda disperso y depende de la disciplina de quien revisa el caso.
+Propuesta de solución
+Se propone una sola solución unificada compuesta por una pantalla centralizada y un motor común de procesamiento, capaz de consultar, validar y cerrar de forma controlada distintos tipos de transacciones abiertas cuando el remanente ya no continuará en la operación.
+* Pantalla única para consultar transacciones candidatas a cierre por tipo documental.
+* Ejecución manual, masiva o programada según la naturaleza del proceso.
+* Filtros para seleccionar por tipo de transacción, fechas, planta, y tolerancia de cantidad no ejecutada (producida, entregada, recibida, de acuerdo al documento).
+* Cierre usando únicamente mecanismos nativos permitidos por NetSuite, sin forzar estatus.
+* Pantalla de resultados de ejecución con documentos evaluados, cerrados, omitidos y motivo de descarte.
+Mejoras esperadas
+* Unifica en una sola herramienta el tratamiento de órdenes de trabajo, venta, traslado y compra.
+* Reduce la depuración manual documento por documento.
+* Mejora la calidad de los reportes de órdenes abiertas y del seguimiento operativo.
+* Disminuye compromisos innecesarios de inventario, materiales o documentos abiertos sin continuidad.
+Dónde deja la operación esta implementación
+NETSUITE DE CAJA HOY
+	CON LA SOLUCIÓN IMPLEMENTADA
+	Cada tipo de documento se revisa por separado.
+	Una sola pantalla para todas las transacciones con criterio de cierre (filtros para selección).
+	El cierre depende del criterio del usuario que revisa.
+	El criterio queda gobernado y trazable.
+	Persisten pendientes que ya no representan operación real.
+	El universo abierto refleja mejor el trabajo realmente pendiente.
+	
+
+Alcance propuesto
+INCLUYE
+	NO INCLUYE
+	* Órdenes de trabajo, venta, compra y traslado en un marco común.
+* Pantalla centralizada, ejecución masiva y bitácora.
+* Filtros para selección de las transacciones a ser depuradas (cerradas).
+	* Modificar el motor nativo del MRP o la planeación de NetSuite.
+* Forzar estatus no permitidos por el estándar.
+* Crear movimientos artificiales de inventario, producción o contabilidad.
+
+
+	Criterios pendientes de definición:
+1. Si en compras hay algún tipo de órdenes que no deberían cerrarse o criterios específicos para excluir transacciones.
+2. Modalidad operativa pendiente de definición:
+
+
+1. Dashboard de cierre masivo asistido por usuario. Los usuarios consultan candidatos, revisan elegibilidad y ejecutan manualmente el cierre masivo.
+2. Proceso automático programado. El sistema evalúa y ejecuta cierres automáticamente en ventana nocturna, bajo criterios previamente aprobados.
+3. Esquema híbrido. Dashboard para validación inicial y estabilización; automatización nocturna en una segunda etapa.
+Base de estimación y recomendación
+La presente iniciativa considera una estimación base de 130 horas para el desarrollo de una solución unificada de cierre masivo y controlado de transacciones abiertas en NetSuite. El alcance agrupa en un solo frente funcional el tratamiento de órdenes de trabajo, órdenes de venta, órdenes de traslado y órdenes de compra, incorporando una capa común de consulta, validación, procesamiento y trazabilidad, con reglas específicas según la naturaleza de cada tipo documental.
+Firma de conformidad funcional
+Con su firma, los usuarios clave confirman que la necesidad funcional descrita en este documento es correcta en términos generales y que la iniciativa debe continuar a definición detallada y estimación formal.
+Nombre
+	Área / proceso
+	Firma
+	
+
+Folio: Resumen/26/GV/001 | Cliente: Grupo Vida | PMO: Mariano Carrillo   
+Fecha: 03-09-2026 | Tema Principal: Cierre de transacciones

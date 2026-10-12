@@ -1,0 +1,16 @@
+<suitelet scriptid="customscript_gv_sl_cierre_masivo">
+  <name>GV SL Cierre Masivo</name>
+  <notifyowner>F</notifyowner>
+  <scriptfile>[/SuiteScripts/GV_SL_CierreMasivo.js]</scriptfile>
+  <scriptdeployments>
+    <scriptdeployment scriptid="customdeploy_gv_sl_cierre_masivo">
+      <allemployees>T</allemployees>
+      <allpartners>F</allpartners>
+      <allroles>T</allroles>
+      <isdeployed>T</isdeployed>
+      <loglevel>ERROR</loglevel>
+      <status>RELEASED</status>
+      <title>GV SL Cierre Masivo</title>
+    </scriptdeployment>
+  </scriptdeployments>
+</suitelet>

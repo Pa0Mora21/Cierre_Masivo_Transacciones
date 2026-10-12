@@ -1,0 +1,19 @@
+<mapreducescript scriptid="customscript_gv_mr_cierre_masivo">
+  <name>GV MR Cierre Masivo</name>
+  <notifyowner>F</notifyowner>
+  <scriptfile>[/SuiteScripts/GV_MR_CierreMasivo.js]</scriptfile>
+  <scriptdeployments>
+    <scriptdeployment scriptid="customdeploy_gv_mr_cierre_manual">
+      <isdeployed>T</isdeployed>
+      <loglevel>ERROR</loglevel>
+      <status>RELEASED</status>
+      <title>GV MR Cierre Manual</title>
+    </scriptdeployment>
+    <scriptdeployment scriptid="customdeploy_gv_mr_cierre_nocturno">
+      <isdeployed>F</isdeployed>
+      <loglevel>ERROR</loglevel>
+      <status>TESTING</status>
+      <title>GV MR Cierre Nocturno</title>
+    </scriptdeployment>
+  </scriptdeployments>
+</mapreducescript>
